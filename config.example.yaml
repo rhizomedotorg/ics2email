@@ -1,8 +1,12 @@
+calendar-name: Example Events
 ics-url: https://ics-calendar-url.com
 smtp-url: smtp.example.com
+from-name: Example Sender
+from-address: info@example.com
 smtp-credentials:
   - <username>
   - <password>
+
 
 recipients:
   - user@email-address.com

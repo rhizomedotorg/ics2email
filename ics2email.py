@@ -11,12 +11,6 @@ from re import sub
 from slugify import slugify
 
 
-smtp_url = None
-email_addresses = []
-smtp_credentials = ()
-calendar_url = ''
-
-
 def get_smtp_session():
     s = smtplib.SMTP_SSL(smtp_url)
     s.login(*smtp_credentials)
@@ -26,11 +20,11 @@ def get_smtp_session():
 def send_email(to, subj, body, attachment=None, smtp_session=get_smtp_session):
     msg = EmailMessage()
     msg['Subject'] = subj
-    msg['From'] = 'WBSG Rhizome <dev@rhizome.org>'
+    msg['From'] = f'{from_name} <{from_address}>'
     msg['To'] = to
     msg['Date'] = formatdate(localtime=True)
-    msg['Message-ID'] = make_msgid(domain='rhizome.org')
-    msg.add_header('List-Unsubscribe', '<mailto:dev@rhizome.org?subject=wbsg-ics2email-unsubscribe>')
+    msg['Message-ID'] = make_msgid(domain=from_address.split('@')[1])
+    msg.add_header('List-Unsubscribe', f'<mailto:{from_address}?subject={calendar_name}-ics2email-unsubscribe>')
 
     msg.set_content(sub('<[^<]+?>', '', body))
     msg.add_alternative(body, subtype='html')
@@ -54,6 +48,9 @@ if __name__ == '__main__':
     smtp_url = data.get('smtp-url')
     smtp_credentials = data.get('smtp-credentials')
     calendar_url = data.get('ics-url')
+    from_name = data.get('from-name')
+    from_address = data.get('from-address')
+    calendar_name = data.get('calendar-name')
 
     cal_template = '''
     BEGIN:VCALENDAR
@@ -89,8 +86,8 @@ if __name__ == '__main__':
             for address in email_addresses:
                 send_email(
                     address,
-                    f'New WBSG Event: {event.name}',
-                    f'''<h1>New WBSG Event: {event.name}</h1>
+                    f'New Event: {event.name}',
+                    f'''<h1>New {calendar_name} Event: {event.name}</h1>
                         <time datetime="{event.begin.format()}"><strong>start:</strong> {event.begin.format()}</time><BR>
                         <time datetime="{event.end.format()}"><strong>end:</strong> {event.end.format()}</time><BR>
                         {f'<a href="{event.url}">{event.url}</a><BR><BR>' if event.url else '<BR>'}
@@ -106,8 +103,8 @@ if __name__ == '__main__':
             for address in email_addresses:
                 send_email(
                     address,
-                    f'Updated WBSG Event: {event.name}',
-                    f'''<h1>Updated WBSG Event: {event.name}</h1>
+                    f'Updated Event: {event.name}',
+                    f'''<h1>Updated {calendar_name} Event: {event.name}</h1>
                         <time datetime="{event.begin.format()}"><strong>start:</strong> {event.begin.format()}</time><BR>
                         <time datetime="{event.end.format()}"><strong>end:</strong> {event.end.format()}</time><BR>
                         {f'<a href="{event.url}">{event.url}</a><BR><BR>' if event.url else '<BR>'}
