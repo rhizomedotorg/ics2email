@@ -1,0 +1,4 @@
+python-slugify
+ics
+requests
+pyyaml
