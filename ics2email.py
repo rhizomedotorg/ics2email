@@ -94,7 +94,7 @@ if __name__ == '__main__':
                         <p>{event.description}</p>''',
                     event)
 
-            cur.execute("INSERT INTO ics_events VALUES (?, ?, ?)", (event.uid, event.created.format(), event.last_modified.format()))
+            cur.execute("INSERT INTO ics_events VALUES (?, ?, ?)", (event.uid, event.created.format(), event.last_modified.format() if event.last_modified else None))
             con.commit()
 
         elif known_events[event.uid]['last_modified'] != event.last_modified.format():
